@@ -4,6 +4,6 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import svgr from "vite-plugin-svgr";
 
 export default defineConfig({
-  base: "/Movie-App/",
+  base: "/",
   plugins: [react(), tsconfigPaths(), svgr({ include: "**/*.svg" })],
 });
