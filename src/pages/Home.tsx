@@ -25,7 +25,7 @@ const Home: FC = () => {
           const firstItem = fetchedTrending[0];
           const { id, media_type } = firstItem;
           if (media_type === "movie" || media_type === "tv") {
-            dispatch(fetchRecommendations({ id: Number(id), media_type }));
+            dispatch(fetchRecommendations({ id: String(id), media_type }));
           }
         }
       }
