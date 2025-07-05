@@ -21,9 +21,7 @@ const navLinks = [
 const Navbar: FC = () => {
   const [isUserIconClicked, setIsUserIconClicked] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
-  const { loading, user } = useSelector(
-    (state: RootState) => state.user
-  );
+  const { loading, user } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();
 
   const handleClick = () => {
@@ -34,9 +32,12 @@ const Navbar: FC = () => {
     const session_id = localStorage.getItem("session_id");
     if (session_id) {
       setIsLogged(true);
-      dispatch(getUserDetails({ session_id: session_id as string }));
+      dispatch(getUserDetails({ session_id }));
     }
   }, [dispatch]);
+
+  const username = localStorage.getItem("username");
+  const avatarPath = localStorage.getItem("avatar");
 
   return (
     <nav className="relative h-[calc(100%-3rem)] flex md:flex-col justify-between items-center md:m-6 p-6 md:px-5 bg-secondary-dark md:rounded-2xl">
@@ -47,29 +48,49 @@ const Navbar: FC = () => {
       >
         <Logo />
       </NavLink>
-      <div data-testid='nav-links' className="md:-mt-72 flex md:flex-col items-center gap-6">
+
+      <div
+        data-testid="nav-links"
+        className="md:-mt-72 flex md:flex-col items-center gap-6"
+      >
         {navLinks.map((link) => (
           <NavIcon key={link.id} link={link} />
         ))}
       </div>
-      <button
-        className="h-10 w-10"
-        type="button"
-        aria-label="User image"
-        onClick={handleClick}
-      >
-        {isLogged && !loading ? (
-          <img
-            className="h-full w-full rounded-full"
-            src={`https://gravatar.com/avatar/${user?.gravatar}`}
-            alt="User logo"
-          />
-        ) : (
-          <FaUserCircle className="h-full w-full rounded-full text-orange hover:text-white" />
+
+      <div className="flex items-center gap-2">
+        <button
+          className="h-10 w-10"
+          type="button"
+          aria-label="User image"
+          onClick={handleClick}
+        >
+          {isLogged && !loading ? (
+            <img
+              className="h-full w-full rounded-full"
+              src={`https://gravatar.com/avatar/${user?.gravatar}`}
+              alt="User logo"
+            />
+          ) : (
+            <FaUserCircle className="h-full w-full rounded-full text-orange hover:text-white" />
+          )}
+        </button>
+
+        {username && (
+          <div className="hidden md:flex items-center gap-2">
+            <img
+              src={`https://image.tmdb.org/t/p/w45${avatarPath}`}
+              alt={username}
+              className="w-8 h-8 rounded-full"
+            />
+            <span className="text-sm text-white">Hi, {username}</span>
+          </div>
         )}
-      </button>
+      </div>
+
       {isUserIconClicked && <UserCard user={user} isLogged={isLogged} />}
     </nav>
   );
 };
+
 export default Navbar;

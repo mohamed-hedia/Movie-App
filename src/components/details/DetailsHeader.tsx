@@ -18,10 +18,7 @@ type DetailsHeaderProps = {
   release_date: string;
   media_type: string;
   imageSrc: string;
-  genres: {
-    id: number;
-    name: string;
-  }[];
+  genres: { id: number; name: string }[];
   posterUrl: string;
   overview: string;
 };
@@ -40,10 +37,14 @@ const DetailsHeader: FC<DetailsHeaderProps> = ({
   const [trailerUrl, setTrailerUrl] = useState<null | string>(null);
   const [isModalOpened, setIsModalOpened] = useState<boolean>(false);
 
+  const safeMediaType = (type: string): "movie" | "tv" => {
+    return type === "movie" ? "movie" : "tv";
+  };
+
   const handlePlayTrailer = async () => {
     try {
       const url = await movieTrailer(title || "top 10 movies 2024");
-      if (url !== null && url !== "") {
+      if (url) {
         const embedUrl = `https://youtube.com/embed/${url.split("v=")[1]}`;
         setTrailerUrl(embedUrl);
       }
@@ -74,10 +75,35 @@ const DetailsHeader: FC<DetailsHeaderProps> = ({
           style={{
             backgroundImage: `url(https://image.tmdb.org/t/p/w1280/${imageSrc})`,
           }}
-          className="w-full h-full z-0 bg-black opacity-20 md:rounded-bl-2xl bg-cover bg-center md:bg-top bg-no-repeat"
+          className="
+            w-full
+            h-full
+            z-0
+            bg-black
+            opacity-20
+            md:rounded-bl-2xl
+            bg-cover
+            bg-center
+            md:bg-top
+            bg-no-repeat
+          "
         ></div>
 
-        <div data-testid='details-poster-image' className="absolute w-full backdrop-blur-[1.5px] z-10 top-0 px-5 md:py-5  h-full flex gap-6">
+        <div
+          data-testid="details-poster-image"
+          className="
+            absolute
+            w-full
+            backdrop-blur-[1.5px]
+            z-10
+            top-0
+            px-5
+            md:py-5
+            h-full
+            flex
+            gap-6
+          "
+        >
           <div className="h-full hidden md:block">
             <LazyImage
               className="h-full rounded-xl"
@@ -95,7 +121,7 @@ const DetailsHeader: FC<DetailsHeaderProps> = ({
               {genres?.slice(0, 3).map((genre, i) => (
                 <Text key={genre.id}>
                   {genre.name}
-                  {i === genres?.slice(0, 3).length - 1 ? "" : ","}
+                  {i !== genres.slice(0, 3).length - 1 && ","}
                 </Text>
               ))}
             </div>
@@ -113,12 +139,12 @@ const DetailsHeader: FC<DetailsHeaderProps> = ({
               </div>
             </div>
 
-            <div data-testid='details-rating' className="mt-2 flex gap-2">
+            <div data-testid="details-rating" className="mt-2 flex gap-2">
               <PercentageCircle rating={rating * 10} />
               <div className="h-10 w-10">
                 <BookMark
                   id={id}
-                  media_type={media_type}
+                  media_type={safeMediaType(media_type)}
                   className="w-full h-full"
                 />
               </div>
@@ -136,11 +162,82 @@ const DetailsHeader: FC<DetailsHeaderProps> = ({
           </div>
         </div>
       </section>
-      {trailerUrl === null ? (
-        isModalOpened && (
-          <div className="fixed z-50 inset-0 max-h-screen bg-black/80 backdrop-blur-[2px] flex justify-center overflow-y-hidden items-center">
+
+      {isModalOpened &&
+        (trailerUrl ? (
+          <div
+            className="
+            fixed
+            z-50
+            inset-0
+            max-h-screen
+            bg-black/80
+            backdrop-blur-[2px]
+            flex
+            justify-center
+            overflow-y-hidden
+            items-center
+          "
+          >
+            <div
+              className="
+              relative
+              w-[320px]
+              h-[200px]
+              md:w-[640px]
+              md:h-[360px]
+              lg:w-[854px]
+              lg:h-[480px]
+            "
+            >
+              <button
+                className="
+                  absolute
+                  text-4xl
+                  -right-5
+                  -top-8
+                  md:-right-10
+                  md:-top-10
+                  hover:text-red-500
+                  z-30
+                "
+                onClick={handleCloseBtn}
+              >
+                <IoCloseCircleOutline />
+              </button>
+              <iframe
+                className="w-full h-full"
+                src={trailerUrl}
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            </div>
+          </div>
+        ) : (
+          <div
+            className="
+            fixed
+            z-50
+            inset-0
+            max-h-screen
+            bg-black/80
+            backdrop-blur-[2px]
+            flex
+            justify-center
+            overflow-y-hidden
+            items-center
+          "
+          >
             <button
-              className="absolute text-5xl right-10 top-10 hover:text-red-500 z-30"
+              className="
+                absolute
+                text-5xl
+                right-10
+                top-10
+                hover:text-red-500
+                z-30
+              "
               onClick={handleCloseBtn}
             >
               <IoCloseCircleOutline />
@@ -149,27 +246,9 @@ const DetailsHeader: FC<DetailsHeaderProps> = ({
               Sorry, no trailer found
             </Heading>
           </div>
-        )
-      ) : (
-        <div className="fixed z-50 inset-0 max-h-screen bg-black/80 backdrop-blur-[2px] flex justify-center overflow-y-hidden items-center">
-          <div className="relative w-[320px] h-[200px] md:w-[640px] md:h-[360px] lg:w-[854px] lg:h-[480px]">
-            <button
-              className="absolute text-4xl -right-5 -top-8 md:-right-10 md:-top-10  hover:text-red-500 z-30"
-              onClick={handleCloseBtn}
-            >
-              <IoCloseCircleOutline />
-            </button>
-            <iframe
-              className="w-full h-full"
-              src={trailerUrl}
-              title="YouTube video player"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          </div>
-        </div>
-      )}
+        ))}
     </>
   );
 };
+
 export default DetailsHeader;

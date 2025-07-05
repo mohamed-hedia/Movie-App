@@ -18,11 +18,16 @@ const Home: FC = () => {
   const trendingData = trending?.slice(0, 5);
 
   useEffect(() => {
-    dispatch(fetchTrending()).then((data) => {
-      if (data.meta.requestStatus === "fulfilled") {
-        const trendingData = data.payload;
-        const { id, media_type } = trendingData[0];
-        dispatch(fetchRecommendations({ id, media_type }));
+    dispatch(fetchTrending()).then((action) => {
+      if (action.meta.requestStatus === "fulfilled") {
+        const fetchedTrending = action.payload as typeof trending;
+        if (fetchedTrending && fetchedTrending.length > 0) {
+          const firstItem = fetchedTrending[0];
+          const { id, media_type } = firstItem;
+          if (media_type === "movie" || media_type === "tv") {
+            dispatch(fetchRecommendations({ id: Number(id), media_type }));
+          }
+        }
       }
     });
   }, [dispatch]);
@@ -33,23 +38,29 @@ const Home: FC = () => {
         Trending
       </Heading>
       <TrendingWrapper>
-        {!data.loading && trending && trending.length !== 0
+        {!loading && trending && trending.length !== 0
           ? [...(trendingData || []), ...(trendingData || [])].map(
               (item, index: number) => {
-                const movie = item.media_type === "movie";
+                const isMovie = item.media_type === "movie";
+                const safeMediaType: "movie" | "tv" = isMovie ? "movie" : "tv";
+
                 return (
                   <TrendingCard
                     key={item.id + index}
                     id={item.id}
-                    imgSrc={item.backdrop_path}
+                    imgSrc={item.backdrop_path ?? ""}
                     releaseDate={
-                      movie
-                        ? item.release_date?.substring(0, 4)
-                        : item.first_air_date?.substring(0, 4)
+                      isMovie
+                        ? item.release_date?.substring(0, 4) || "N/A"
+                        : item.first_air_date?.substring(0, 4) || "N/A"
                     }
-                    media_type={movie ? item.media_type : "tv"}
+                    media_type={safeMediaType}
                     ratings={item.adult ? "18+" : "PG"}
-                    title={movie ? item.title : item.name}
+                    title={
+                      isMovie
+                        ? item.title || "Untitled"
+                        : item.name || "Untitled"
+                    }
                   />
                 );
               }
@@ -64,20 +75,26 @@ const Home: FC = () => {
         <GridLayout>
           {!loading && recommendations && recommendations.length !== 0
             ? recommendations.map((item) => {
-                const movie = item.media_type === "movie";
+                const isMovie = item.media_type === "movie";
+                const safeMediaType: "movie" | "tv" = isMovie ? "movie" : "tv";
+
                 return (
                   <ItemCard
                     key={item.id}
                     id={item.id}
-                    imgSrc={item.backdrop_path}
+                    imgSrc={item.backdrop_path ?? ""}
                     releaseDate={
-                      movie
-                        ? item.release_date?.substring(0, 4)
-                        : item.first_air_date?.substring(0, 4)
+                      isMovie
+                        ? item.release_date?.substring(0, 4) || "N/A"
+                        : item.first_air_date?.substring(0, 4) || "N/A"
                     }
-                    media_type={movie ? item.media_type : "tv"}
+                    media_type={safeMediaType}
                     ratings={item.adult ? "18+" : "PG"}
-                    title={movie ? item.title : item.name}
+                    title={
+                      isMovie
+                        ? item.title || "Untitled"
+                        : item.name || "Untitled"
+                    }
                   />
                 );
               })
@@ -87,4 +104,5 @@ const Home: FC = () => {
     </PageLayout>
   );
 };
+
 export default Home;

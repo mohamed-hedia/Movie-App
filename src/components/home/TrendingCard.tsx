@@ -16,8 +16,12 @@ type TrendingCardProps = {
   title: string;
 };
 
+const safeMediaType = (type: string): "movie" | "tv" => {
+  return type === "movie" ? "movie" : "tv";
+};
+
 const TrendingCard: FC<TrendingCardProps> = ({
-  id: id,
+  id,
   imgSrc,
   releaseDate,
   media_type,
@@ -25,10 +29,15 @@ const TrendingCard: FC<TrendingCardProps> = ({
   title,
 }) => {
   const movie = media_type === "movie";
+
   return (
     <li className="relative">
       <div className="absolute w-8 h-8 z-30 peer right-4 top-4">
-        <BookMark id={id} media_type={media_type} className="w-full h-full" />
+        <BookMark
+          id={id}
+          media_type={safeMediaType(media_type)}
+          className="w-full h-full"
+        />
       </div>
       <NavLink className="relative" to={movie ? `/movie/${id}` : `/tv/${id}`}>
         <div className="relative item-image w-[80vw] md:w-[30vw]">
@@ -59,7 +68,21 @@ const TrendingCard: FC<TrendingCardProps> = ({
           </h2>
         </div>
 
-        <div className="absolute inset-0 opacity-0 hover:opacity-100 hover:duration-300 peer-hover:opacity-100 bg-[#00000070] backdrop-blur-[2px] flex justify-center items-center">
+        <div
+          className="
+          absolute
+          inset-0
+          opacity-0
+          hover:opacity-100
+          hover:duration-300
+          peer-hover:opacity-100
+          bg-[#00000070]
+          backdrop-blur-[2px]
+          flex
+          justify-center
+          items-center
+        "
+        >
           <Text className="bg-white/70 text-black py-2 px-4 rounded-full">
             See Details
           </Text>
@@ -68,4 +91,5 @@ const TrendingCard: FC<TrendingCardProps> = ({
     </li>
   );
 };
+
 export default TrendingCard;

@@ -1,6 +1,8 @@
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 
-type TrendingWrapperProps = { children: React.ReactNode };
+interface TrendingWrapperProps {
+  children: ReactNode;
+}
 
 const TrendingWrapper: FC<TrendingWrapperProps> = ({ children }) => {
   return (
@@ -9,4 +11,5 @@ const TrendingWrapper: FC<TrendingWrapperProps> = ({ children }) => {
     </div>
   );
 };
+
 export default TrendingWrapper;

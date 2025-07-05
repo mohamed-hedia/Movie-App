@@ -2,45 +2,54 @@ import { FC, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { IoBookmark, IoBookmarkOutline } from "react-icons/io5";
 
-import { addBookmark, removeBookmark } from "@/redux/bookmarked/bookmarkSlice";
+import {
+  addBookmark,
+  removeBookmark,
+  fetchBookmark,
+} from "@/redux/bookmarked/bookmarkSlice";
 import { AppDispatch } from "@/redux/store";
 import { useLocation, useNavigate } from "react-router-dom";
 import { checkBookmarked } from "@/lib/api";
 
 type BookMarkProps = {
   id: number;
-  media_type: string;
+  media_type: "movie" | "tv";
   className?: string;
 };
 
 const BookMark: FC<BookMarkProps> = ({ id, media_type, className }) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
-  const {pathname} = useLocation()
+  const { pathname } = useLocation();
   const navigate = useNavigate();
 
   const session_id = localStorage.getItem("session_id");
 
   const handleClick = async () => {
-    const session_id = localStorage.getItem("session_id");
+    if (!session_id) {
+      console.error("Session ID not found!");
+      return;
+    }
+
+    console.log("Adding/removing bookmark for:", { id, media_type });
+
     if (isBookmarked) {
-      await dispatch(removeBookmark({ id, media_type, session_id })).then(() => {
-        if (pathname === "/bookmarked") {
-          navigate(0)
-        }
-      });
+      await dispatch(removeBookmark({ id, media_type, session_id }));
+      await dispatch(fetchBookmark());
+      if (pathname === "/bookmarked") navigate(0);
       setIsBookmarked(false);
     } else {
-      await dispatch(addBookmark({ id, media_type, session_id }))
+      await dispatch(addBookmark({ id, media_type, session_id }));
+      await dispatch(fetchBookmark());
       setIsBookmarked(true);
     }
   };
 
   useEffect(() => {
-    if (isBookmarked === false && session_id) {
-      checkBookmarked({ id }).then((res) => setIsBookmarked(res));
+    if (!isBookmarked && session_id) {
+      checkBookmarked({ id, media_type }).then((res) => setIsBookmarked(res));
     }
-  }, [isBookmarked, id, session_id]);
+  }, [id, media_type, session_id]);
 
   return (
     <div
@@ -55,4 +64,5 @@ const BookMark: FC<BookMarkProps> = ({ id, media_type, className }) => {
     </div>
   );
 };
+
 export default BookMark;

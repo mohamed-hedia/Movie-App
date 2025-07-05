@@ -4,13 +4,12 @@ import axios from "axios";
 type ItemData = {
   id: number;
   media_type: string;
-  release_date: string;
-  title: string;
+  release_date?: string;
+  first_air_date?: string;
+  title?: string;
+  name?: string;
   backdrop_path: string;
-  ratings: string;
   adult: boolean;
-  first_air_date: string;
-  name: string;
 };
 
 type BookmarkData = ItemData[];
@@ -29,18 +28,26 @@ const initialState: BookmarkState = {
   error: null,
 };
 
+const API_KEY = import.meta.env.VITE_APP_API_KEY;
+const MOVIE_LIST_ID = import.meta.env.VITE_APP_MOVIE_LIST_ID;
+const TV_LIST_ID = import.meta.env.VITE_APP_TV_SHOWS_LIST_ID;
+
 export const fetchBookmark = createAsyncThunk(
   "bookmark/fetchBookmark",
   async () => {
-    const params = {
-      api_key: import.meta.env.VITE_APP_API_KEY,
-    };
-    const response = await axios("https://api.themoviedb.org/3/list/8299412", {
-      params,
-    });
+    const params = { api_key: API_KEY };
 
-    const data = response.data.items;
-    return data;
+    const movieRes = await axios.get(
+      `https://api.themoviedb.org/3/list/${MOVIE_LIST_ID}`,
+      { params }
+    );
+
+    const tvRes = await axios.get(
+      `https://api.themoviedb.org/3/list/${TV_LIST_ID}`,
+      { params }
+    );
+
+    return [...(movieRes.data.items || []), ...(tvRes.data.items || [])];
   }
 );
 
@@ -51,23 +58,17 @@ export const addBookmark = createAsyncThunk(
     media_type,
     session_id,
   }: {
-    id: number | undefined;
-    media_type: string | undefined;
+    id: number;
+    media_type: string;
     session_id: string | null;
   }) => {
-    const params = {
-      api_key: import.meta.env.VITE_APP_API_KEY,
-      session_id,
-    };
+    const listId = media_type === "movie" ? MOVIE_LIST_ID : TV_LIST_ID;
+    const params = { api_key: API_KEY, session_id };
     const response = await axios.post(
-      "https://api.themoviedb.org/3/list/8299412/add_item",
-      {
-        media_id: id,
-        media_type,
-      },
+      `https://api.themoviedb.org/3/list/${listId}/add_item`,
+      { media_id: id },
       { params }
     );
-
     return response.data;
   }
 );
@@ -79,23 +80,17 @@ export const removeBookmark = createAsyncThunk(
     media_type,
     session_id,
   }: {
-    id: number | undefined;
-    media_type: string | undefined;
+    id: number;
+    media_type: string;
     session_id: string | null;
   }) => {
-    const params = {
-      api_key: import.meta.env.VITE_APP_API_KEY,
-      session_id,
-    };
+    const listId = media_type === "movie" ? MOVIE_LIST_ID : TV_LIST_ID;
+    const params = { api_key: API_KEY, session_id };
     const response = await axios.post(
-      "https://api.themoviedb.org/3/list/8299412/remove_item",
-      {
-        media_id: id,
-        media_type,
-      },
+      `https://api.themoviedb.org/3/list/${listId}/remove_item`,
+      { media_id: id },
       { params }
     );
-
     return response.data;
   }
 );
@@ -116,14 +111,11 @@ const bookmarkSlice = createSlice({
       })
       .addCase(fetchBookmark.rejected, (state, action) => {
         state.loading = false;
-        state.error =
-          action.error.message || "Failed to fetch bookmarked items";
+        state.error = action.error.message || "Failed to fetch bookmarks";
       });
     builder
       .addCase(addBookmark.pending, (state) => {
         state.loading = true;
-        state.status = false;
-        state.error = null;
       })
       .addCase(addBookmark.fulfilled, (state) => {
         state.loading = false;
@@ -132,13 +124,11 @@ const bookmarkSlice = createSlice({
       .addCase(addBookmark.rejected, (state, action) => {
         state.loading = false;
         state.status = false;
-        state.error = action.error.message || "Failed to add bookmarked item";
+        state.error = action.error.message || "Failed to add bookmark";
       });
     builder
       .addCase(removeBookmark.pending, (state) => {
         state.loading = true;
-        state.status = false;
-        state.error = null;
       })
       .addCase(removeBookmark.fulfilled, (state) => {
         state.loading = false;
@@ -147,8 +137,7 @@ const bookmarkSlice = createSlice({
       .addCase(removeBookmark.rejected, (state, action) => {
         state.loading = false;
         state.status = false;
-        state.error =
-          action.error.message || "Failed to remove bookmarked item";
+        state.error = action.error.message || "Failed to remove bookmark";
       });
   },
 });

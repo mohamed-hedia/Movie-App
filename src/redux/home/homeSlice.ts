@@ -1,22 +1,22 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
-type HomeData = {
+export type HomeData = {
   id: number;
   media_type: string;
   backdrop_path: string;
-  release_date: string;
-  first_air_date: string;
+  release_date?: string;
+  first_air_date?: string;
   adult: boolean;
-  title: string;
-  name: string;
+  title?: string;
+  name?: string;
 };
 
 interface DataState {
   loading: boolean;
   trending: HomeData[];
   recommendations?: HomeData[];
-  error: string | undefined;
+  error?: string;
 }
 
 const initialState: DataState = {
@@ -25,27 +25,6 @@ const initialState: DataState = {
   recommendations: [],
   error: undefined,
 };
-
-export const fetchTrending = createAsyncThunk(
-  "data/fetchTrending",
-  async () => {
-    try {
-      const params = {
-        api_key: import.meta.env.VITE_APP_API_KEY,
-        language: "en-US",
-      };
-
-      const response = await axios.get(
-        "https://api.themoviedb.org/3/trending/movie/week",
-        { params }
-      );
-
-      return response.data.results;
-    } catch (err) {
-      return err;
-    }
-  }
-);
 
 export const fetchRecommendations = createAsyncThunk(
   "data/fetchRecommendations",
@@ -56,18 +35,29 @@ export const fetchRecommendations = createAsyncThunk(
     id: string;
     media_type: string | undefined;
   }) => {
-    try {
-      const params = {
-        api_key: import.meta.env.VITE_APP_API_KEY,
-      };
-      const response = await axios.get(
-        `https://api.themoviedb.org/3/${media_type}/${id}/recommendations`,
-        { params }
-      );
-      return response.data.results;
-    } catch (err) {
-      return err;
-    }
+    const params = {
+      api_key: import.meta.env.VITE_APP_API_KEY,
+    };
+    const response = await axios.get(
+      `https://api.themoviedb.org/3/${media_type}/${id}/recommendations`,
+      { params }
+    );
+    return response.data.results;
+  }
+);
+
+export const fetchTrending = createAsyncThunk(
+  "data/fetchTrending",
+  async () => {
+    const params = {
+      api_key: import.meta.env.VITE_APP_API_KEY,
+      language: "en-US",
+    };
+    const response = await axios.get(
+      "https://api.themoviedb.org/3/trending/movie/week",
+      { params }
+    );
+    return response.data.results;
   }
 );
 
@@ -88,6 +78,7 @@ export const dataSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       });
+
     builder
       .addCase(fetchRecommendations.pending, (state) => {
         state.loading = true;

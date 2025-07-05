@@ -20,7 +20,7 @@ const Movies: FC = () => {
   const { loading, movies } = data;
   const { page, total_pages, results } = movies;
 
-  const currentItems = results
+  const currentItems = results;
   const pageCount = total_pages > 100 ? 100 : total_pages;
 
   const handlePageClick = async (event: { selected: number }) => {
@@ -36,8 +36,9 @@ const Movies: FC = () => {
       <Heading as="h1" className="mt-6">
         Popular Movies
       </Heading>
+
       <GridLayout>
-        {!loading && currentItems && currentItems.length !== 0
+        {!loading && currentItems && currentItems.length > 0
           ? currentItems.map((movie: MovieData) => (
               <ItemCard
                 key={movie.id}
@@ -51,8 +52,13 @@ const Movies: FC = () => {
             ))
           : null}
       </GridLayout>
+
       <div className="pr-6 md:pr-0">
-      <ReactPagination pageCount={pageCount} handlePageClick={handlePageClick} page={page}/>
+        <ReactPagination
+          pageCount={pageCount}
+          handlePageClick={handlePageClick}
+          page={page}
+        />
       </div>
     </PageLayout>
   );

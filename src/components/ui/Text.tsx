@@ -24,4 +24,5 @@ const Text: FC<TextProps> = ({ children, size, className, ...props }) => {
     </p>
   );
 };
+
 export default Text;

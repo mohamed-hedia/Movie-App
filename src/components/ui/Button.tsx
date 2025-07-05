@@ -1,25 +1,26 @@
 import { cva, VariantProps } from "class-variance-authority";
 import { ComponentPropsWithoutRef, FC } from "react";
 
-const buttonClasses = cva([
-  "bg-orange", "hover:bg-white","px-2","hover:text-black"
-], {
-  variants: {
-    rounded: {
-      full: "rounded-full",
-      md: "rounded-md",
+const buttonClasses = cva(
+  ["bg-orange", "hover:bg-white", "px-2", "hover:text-black"],
+  {
+    variants: {
+      rounded: {
+        full: "rounded-full",
+        md: "rounded-md",
+      },
+      size: {
+        small: "text-sm",
+        medium: "text-base",
+        large: "text-lg",
+      },
     },
-    size: {
-      small: ["text-sm"],
-      medium: ["text-base"],
-      large: ["text-lg"],
+    defaultVariants: {
+      rounded: "md",
+      size: "medium",
     },
-  },
-  defaultVariants: {
-    rounded: "md",
-    size: "medium",
-  },
-});
+  }
+);
 
 export interface ButtonProps
   extends ComponentPropsWithoutRef<"button">,

@@ -1,20 +1,20 @@
+import { FC } from "react";
 import { VariantProps, cva } from "class-variance-authority";
-import { ComponentPropsWithoutRef, FC } from "react";
 
 const headingClasses = cva(["antialiased"], {
   variants: {
     size: {
-      lg: ["text-3xl"],
-      md: ["text-2xl"],
-      sm: ["text-lg"],
+      lg: "text-3xl",
+      md: "text-2xl",
+      sm: "text-lg",
     },
     as: {
-      h1: ["font-outfitLight"],
-      h2: ["font-outfitLight"],
-      h3: ["font-outfitMedium"],
-      h4: ["font-outfitMedium"],
-      h5: ["font-outfitMedium"],
-      h6: ["font-outfitMedium"],
+      h1: "font-outfitLight",
+      h2: "font-outfitLight",
+      h3: "font-outfitMedium",
+      h4: "font-outfitMedium",
+      h5: "font-outfitMedium",
+      h6: "font-outfitMedium",
     },
   },
   defaultVariants: {
@@ -24,7 +24,7 @@ const headingClasses = cva(["antialiased"], {
 });
 
 export interface HeadingProps
-  extends ComponentPropsWithoutRef<"h1" | "h2" | "h3" | "h4" | "h5" | "h6">,
+  extends React.HTMLAttributes<HTMLElement>,
     VariantProps<typeof headingClasses> {
   as: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 }
@@ -36,11 +36,15 @@ const Heading: FC<HeadingProps> = ({
   className,
   ...props
 }) => {
-  const Tag = as ;
+  const Tag = as;
   return (
-    <Tag className={headingClasses({ size, as, className })} {...props}>
+    <Tag
+      className={`${headingClasses({ size, as })} ${className ?? ""}`}
+      {...props}
+    >
       {children}
     </Tag>
   );
 };
+
 export default Heading;

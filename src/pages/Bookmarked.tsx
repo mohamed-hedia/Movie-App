@@ -14,8 +14,12 @@ const Bookmarked = () => {
   );
   const dispatch = useDispatch<AppDispatch>();
 
-  const movies = bookmarks?.filter((item) => item.media_type === "movie");
-  const tvShows = bookmarks?.filter((item) => item.media_type === "tv");
+  const movies = bookmarks
+    ? bookmarks.filter((item) => item.media_type === "movie")
+    : [];
+  const tvShows = bookmarks
+    ? bookmarks.filter((item) => item.media_type === "tv")
+    : [];
 
   useEffect(() => {
     dispatch(fetchBookmark());
@@ -29,44 +33,53 @@ const Bookmarked = () => {
             <Heading as="h2" className="mt-6">
               Bookmarked Movies
             </Heading>
-            {movies && movies?.length !== 0 ? (
+            {movies.length !== 0 ? (
               <GridLayout>
-                {movies?.map((movie) => (
+                {movies.map((movie) => (
                   <ItemCard
                     key={movie.id}
                     id={movie.id}
                     imgSrc={movie.backdrop_path}
-                    releaseDate={movie.release_date?.substring(0, 4)}
+                    releaseDate={
+                      movie.release_date
+                        ? movie.release_date.substring(0, 4)
+                        : "N/A"
+                    }
                     media_type="movie"
                     ratings={movie.adult ? "18+" : "PG"}
-                    title={movie.title}
+                    title={movie.title ?? "Untitled"}
                   />
                 ))}
               </GridLayout>
             ) : (
-              <div className="">No Bookmarked Movies...</div>
+              <div>No Bookmarked Movies...</div>
             )}
           </section>
+
           <section>
             <Heading as="h2" className="mt-6">
               Bookmarked TV Shows
             </Heading>
-            {!loading && tvShows && tvShows?.length !== 0 ? (
+            {tvShows.length !== 0 ? (
               <GridLayout>
-                {tvShows?.map((tvShow) => (
+                {tvShows.map((tvShow) => (
                   <ItemCard
                     key={tvShow.id}
                     id={tvShow.id}
                     imgSrc={tvShow.backdrop_path}
-                    releaseDate={tvShow.first_air_date?.substring(0, 4)}
+                    releaseDate={
+                      tvShow.first_air_date
+                        ? tvShow.first_air_date.substring(0, 4)
+                        : "N/A"
+                    }
                     media_type="tv"
                     ratings={tvShow.adult ? "18+" : "PG"}
-                    title={tvShow.name}
+                    title={tvShow.name ?? "Untitled"}
                   />
                 ))}
               </GridLayout>
             ) : (
-              <div className="">No Bookmarked TV Shows...</div>
+              <div>No Bookmarked TV Shows...</div>
             )}
           </section>
         </>
@@ -74,4 +87,5 @@ const Bookmarked = () => {
     </PageLayout>
   );
 };
+
 export default Bookmarked;
