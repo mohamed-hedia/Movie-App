@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import RequireAuth from "./components/common/RequireAuth";
 import ErrorBoundary from "./components/common/ErrorBoundary";
+console.log("API Key in runtime:", import.meta.env.VITE_APP_API_KEY);
 
 function App() {
   const { pathname } = useLocation();
